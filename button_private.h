@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <stddef.h>
-#include <stdint.h> /// integer types
 #include <stdbool.h>
 #include <logger_common.h>
 

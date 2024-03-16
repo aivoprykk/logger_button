@@ -1,4 +1,5 @@
 #include "button.h"
+#include "button_private.h"
 
 #include <string.h>
 
@@ -233,7 +234,7 @@ void init_button_task() {
         }
     }
     // start gpio task
-    xTaskCreate(gpio_task, "gpio_task", 2 * 1024, NULL, 10, &t1);
+    xTaskCreate(gpio_task, "gpio_task", CONFIG_BTN_TASK_STACK_SIZE, NULL, 10, &t1);
     // install gpio isr service
     // gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 

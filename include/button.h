@@ -1,7 +1,7 @@
 #ifndef BTN_BUTTON_H
 #define BTN_BUTTON_H
 
-#include "../button_private.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
