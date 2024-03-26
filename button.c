@@ -10,7 +10,11 @@
 #include "esp_timer.h"
 #include "sys/time.h"
 
+#include "button_events.h"
+
 static const char *TAG = "button";
+
+ESP_EVENT_DEFINE_BASE(BUTTON_EVENTS);
 
 #ifdef CONFIG_BTN_BUTTON_OLD_BEHAIVIOR
 esp_err_t init_Button_push(struct Button_push *me, int GPIO_pin,
@@ -33,7 +37,7 @@ esp_err_t init_Button_push(struct Button_push *me, int GPIO_pin,
 esp_err_t Button_pushed(struct Button_push *me) {
     if (!me)
         return ESP_FAIL;
-    int32_t millis = esp_timer_get_time()/1000;
+    int32_t millis = get_millis();
     me->return_value = 0;
     me->button_status = gpio_get_level((gpio_num_t)me->Input_pin);
     if (me->button_status == 1) {
@@ -95,6 +99,17 @@ struct io_button_s {
     void (*handler)(button_event_t *ev);
 };
 
+#define IO_BUTTON_DEFAULTS {\
+    .inverted = true,       \
+    .history = 0xffff,      \
+    .pin = 0,               \
+    .down_time = 0,         \
+    .next_short_time = 0,   \
+    .next_long_time = 0,    \
+    .next_llong_time = 0,   \
+    .handler = NULL \
+}
+
 // static QueueHandle_t gpio_evt_queue = NULL;
 static struct io_button_s *io_buttons;
 int pin_count = -1;
@@ -118,19 +133,19 @@ static bool button_fell(struct io_button_s *d) {
     }
     return 0;
 }
+
 static bool button_down(struct io_button_s *d) {
     if (d->inverted)
         return button_fell(d);
     return button_rose(d);
 }
+
 static bool button_up(struct io_button_s *d) {
     if (d->inverted)
         return button_rose(d);
     return button_fell(d);
 }
-static uint32_t millis() {
-    return esp_timer_get_time() / 1000;
-}
+
 /* static void IRAM_ATTR gpio_isr_handler(void *arg) {
     uint32_t gpio_num = (uint32_t)arg;
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
@@ -155,7 +170,7 @@ static void gpio_task(void *arg) {
 
             // ESP_LOGW(TAG, " Button Event for pin %" PRIu32 , io_num);
             update_button(b);
-            t = millis();
+            t = get_millis();
             event.pin = b->pin;
             event.start_time = b->down_time;
             if (button_up(b)) {
@@ -180,18 +195,21 @@ static void gpio_task(void *arg) {
                 //ESP_LOGW(TAG, "pin %" PRIu32 " LONG LONG %" PRIu32 "ms", b->pin, t-event.start_time);
                 //b->next_llong_time = b->next_llong_time + CONFIG_BTN_GPIO_INPUT_LONG_LONG_PRESS_REPEAT_MS;
                 event.event = BUTTON_HELD_LLONG;
+                ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENTS, BUTTON_EVENT_HELD_LONG_2, NULL,0, portMAX_DELAY));
                 if (b->handler)
                     b->handler(&event);
             } else if (b->down_time && t >= b->next_long_time) {
                 //ESP_LOGW(TAG, "pin %" PRIu32 " LONG %" PRIu32 "ms", b->pin, t-event.start_time);
                 //b->next_long_time = b->next_long_time + CONFIG_BTN_GPIO_INPUT_LONG_PRESS_REPEAT_MS;
                 event.event = BUTTON_HELD_LONG;
+                ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENTS, BUTTON_EVENT_HELD_LONG, NULL,0, portMAX_DELAY));
                 if (b->handler)
                     b->handler(&event);
             } else if (b->down_time && t >= b->next_short_time) {
                 //ESP_LOGW(TAG, "pin %" PRIu32 " SHORT %" PRIu32 "ms", b->pin, t-event.start_time);
                 //b->next_short_time = b->next_short_time + CONFIG_BTN_GPIO_INPUT_SHORT_PRESS_REPEAT_MS;
                 event.event = BUTTON_HELD_SHORT;
+                ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENTS, BUTTON_EVENT_HELD_SHORT, NULL,0, portMAX_DELAY));
                 if (b->handler)
                     b->handler(&event);
             }
@@ -235,6 +253,7 @@ void init_button_task() {
     }
     // start gpio task
     xTaskCreate(gpio_task, "gpio_task", CONFIG_BTN_TASK_STACK_SIZE, NULL, 10, &t1);
+    ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENTS, BUTTON_EVENT_INIT_DONE, NULL,0, portMAX_DELAY));
     // install gpio isr service
     // gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
@@ -248,6 +267,7 @@ void init_button_task() {
 
 void deinit_button_task() {
     vTaskDelete(t1);
+    ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENTS, BUTTON_EVENT_DEINIT_DONE, NULL,0, portMAX_DELAY));
     free(io_buttons);
 }
 

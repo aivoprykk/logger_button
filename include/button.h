@@ -47,6 +47,12 @@ typedef struct {
     uint32_t start_time;
 } button_event_t;
 
+#define BUTTON_EVENT_DEFAULTS {\
+    .event = 0,         \
+    .pin = 0,           \
+    .start_time = 0,    \
+}
+
 void init_button_task();
 void deinit_button_task();
 void button_add_handler(uint32_t pin, void (*handler)(button_event_t *ev));
