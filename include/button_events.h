@@ -8,9 +8,9 @@ extern "C" {
 #endif
 
 // Declare an event base
-ESP_EVENT_DECLARE_BASE(BUTTON_EVENTS);        // declaration of the BUTTON_EVENTS family
+ESP_EVENT_DECLARE_BASE(BUTTON_EVENT);        // declaration of the BUTTON_EVENT family
 
-// declaration of the specific events under the BUTTON_EVENTS family
+// declaration of the specific events under the BUTTON_EVENT family
 enum {                                       
     BUTTON_EVENT_INIT_DONE,
     BUTTON_EVENT_DEINIT_DONE,

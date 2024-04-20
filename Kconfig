@@ -1,8 +1,7 @@
-menu "Button IO Configuration"
+menu "Logger Button Configuration"
     config BTN_TASK_STACK_SIZE
         int "Task stack size in bytes"
         default 3072
-	comment "Button io configuration for Lilygo GPS Logger"
         config BTN_GPIO_INPUT_0
             int "GPIO 0 input"
             default 3 if HAS_BOARD_LILYGO_T_DISPLAY_S3
@@ -43,7 +42,7 @@ menu "Button IO Configuration"
                 Specify long press repeat time in milliseconds
         config BTN_GPIO_INPUT_LONG_LONG_PRESS_DURATION_MS
             int "Long long press duration"
-            default 4000
+            default 3000
             help
                 Specify long long press duration in milliseconds
         config BTN_GPIO_INPUT_LONG_LONG_PRESS_REPEAT_MS

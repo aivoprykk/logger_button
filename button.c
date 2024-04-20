@@ -14,7 +14,7 @@
 
 static const char *TAG = "button";
 
-ESP_EVENT_DEFINE_BASE(BUTTON_EVENTS);
+ESP_EVENT_DEFINE_BASE(BUTTON_EVENT);
 
 #ifdef CONFIG_BTN_BUTTON_OLD_BEHAIVIOR
 esp_err_t init_Button_push(struct Button_push *me, int GPIO_pin,
@@ -151,9 +151,9 @@ static bool button_up(struct io_button_s *d) {
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
 } */
 
-static void gpio_task(void *arg) {
+static void button_task(void *arg) {
     //uint32_t io_num;
-    uint32_t t;
+    uint32_t t, loops=0;
     button_event_t event;
     for (;;) {
         for (int pin = 0; pin < pin_count; ++pin) {
@@ -195,26 +195,30 @@ static void gpio_task(void *arg) {
                 //ESP_LOGW(TAG, "pin %" PRIu32 " LONG LONG %" PRIu32 "ms", b->pin, t-event.start_time);
                 //b->next_llong_time = b->next_llong_time + CONFIG_BTN_GPIO_INPUT_LONG_LONG_PRESS_REPEAT_MS;
                 event.event = BUTTON_HELD_LLONG;
-                ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENTS, BUTTON_EVENT_HELD_LONG_2, NULL,0, portMAX_DELAY));
+                ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENT, BUTTON_EVENT_HELD_LONG_2, NULL,0, portMAX_DELAY));
                 if (b->handler)
                     b->handler(&event);
             } else if (b->down_time && t >= b->next_long_time) {
                 //ESP_LOGW(TAG, "pin %" PRIu32 " LONG %" PRIu32 "ms", b->pin, t-event.start_time);
                 //b->next_long_time = b->next_long_time + CONFIG_BTN_GPIO_INPUT_LONG_PRESS_REPEAT_MS;
                 event.event = BUTTON_HELD_LONG;
-                ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENTS, BUTTON_EVENT_HELD_LONG, NULL,0, portMAX_DELAY));
+                ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENT, BUTTON_EVENT_HELD_LONG, NULL,0, portMAX_DELAY));
                 if (b->handler)
                     b->handler(&event);
             } else if (b->down_time && t >= b->next_short_time) {
                 //ESP_LOGW(TAG, "pin %" PRIu32 " SHORT %" PRIu32 "ms", b->pin, t-event.start_time);
                 //b->next_short_time = b->next_short_time + CONFIG_BTN_GPIO_INPUT_SHORT_PRESS_REPEAT_MS;
                 event.event = BUTTON_HELD_SHORT;
-                ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENTS, BUTTON_EVENT_HELD_SHORT, NULL,0, portMAX_DELAY));
+                ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENT, BUTTON_EVENT_HELD_SHORT, NULL,0, portMAX_DELAY));
                 if (b->handler)
                     b->handler(&event);
             }
         }
-        delay_ms(10);
+        if(loops++ > 1000) {
+            loops = 0;
+            task_memory_info("button_task");
+        }
+        delay_ms(100);
     }
 }
 
@@ -252,8 +256,8 @@ void init_button_task() {
         }
     }
     // start gpio task
-    xTaskCreate(gpio_task, "gpio_task", CONFIG_BTN_TASK_STACK_SIZE, NULL, 10, &t1);
-    ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENTS, BUTTON_EVENT_INIT_DONE, NULL,0, portMAX_DELAY));
+    xTaskCreate(button_task, "buttonTask", CONFIG_BTN_TASK_STACK_SIZE, NULL, 5, &t1);
+    ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENT, BUTTON_EVENT_INIT_DONE, NULL,0, portMAX_DELAY));
     // install gpio isr service
     // gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
@@ -261,13 +265,12 @@ void init_button_task() {
         gpio_isr_handler_add(io_buttons[pin].pin, gpio_isr_handler, (void *)io_buttons[pin].pin);
     } */
     #ifdef DEBUG
-    printf("[%s] Minimum free heap size: %" PRIu32 " bytes\n", __FUNCTION__, esp_get_minimum_free_heap_size());
     #endif
 }
 
 void deinit_button_task() {
     vTaskDelete(t1);
-    ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENTS, BUTTON_EVENT_DEINIT_DONE, NULL,0, portMAX_DELAY));
+    ESP_ERROR_CHECK(esp_event_post(BUTTON_EVENT, BUTTON_EVENT_DEINIT_DONE, NULL,0, portMAX_DELAY));
     free(io_buttons);
 }
 
