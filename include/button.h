@@ -2,62 +2,46 @@
 #define BTN_BUTTON_H
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef CONFIG_BTN_BUTTON_OLD_BEHAIVIOR
+typedef enum {
+    L_BUTTON_DOWN = 0,
+    L_BUTTON_UP,
+    L_BUTTON_LONG_PRESS_START,
+    L_BUTTON_LONG_LONG_PRESS_START,
+    L_BUTTON_CLICK,
+    L_BUTTON_DOUBLE_CLICK,
+    L_BUTTON_NONE
+} l_button_ev_t;
 
-struct io_button_s {
-    uint8_t long_pulse;
-    uint8_t button_status;
-    uint8_t old_button_status;
+typedef void (*l_button_cb_t)(int, l_button_ev_t, uint64_t press_time);
 
-    int return_value;
-    int Input_pin;
-    int millis_10s;
-    uint32_t button_count;
-    
-    uint32_t push_millis;
-    uint32_t time_out_millis;
-    uint32_t max_pulse_time;
-    uint32_t max_button_count;
-};
+typedef struct l_button_s {
+    void * btn;
+    int gpio_num;
+    int64_t press_time;
+    int64_t press_start;
+    bool button_down;
+    l_button_cb_t cb;
+} l_button_t;
 
-int init_io_button_s(struct io_button_s*, int GPIO_pin, uint32_t push_time, uint32_t long_pulse_time, uint32_t max_count);  // constructor
-int io_button_sed(struct io_button_s*);                                                                                     // return true if button is pushed longer then push_time
-
+#if defined(BTN_GPIO_INPUT_1_ACTIVE)
+#define L_BUTTONS_NUM             2
 #else
-
-#define PIN_BIT(x) (1ULL << x)
-
-#define BUTTON_DOWN (1)
-#define BUTTON_UP (2)
-#define BUTTON_HELD_SHORT (3)
-#define BUTTON_HELD_LONG (4)
-#define BUTTON_HELD_LLONG (5)
-
-typedef struct {
-    uint8_t event;
-    //uint8_t _pad0;
-    //uint16_t _pad1;
-    //uint32_t _pad2;
-    uint32_t pin;
-    uint32_t start_time;
-} button_event_t;
-
-#define BUTTON_EVENT_DEFAULTS {\
-    .event = 0,         \
-    .pin = 0,           \
-    .start_time = 0,    \
-}
-
-void init_button_task();
-void deinit_button_task();
-void button_add_handler(uint32_t pin, void (*handler)(button_event_t *ev));
-
+#define L_BUTTONS_NUM             1
 #endif
+
+extern l_button_t btns[L_BUTTONS_NUM];    // button array
+
+typedef l_button_t* l_button_handle_t;
+
+void button_init();
+void button_deinit();
 
 #ifdef __cplusplus
 }
