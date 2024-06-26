@@ -54,10 +54,10 @@ static void button_event_press_up_cb(void *arg, void *data) {
 
 static void button_event_long_press_start_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ESP_LOGI(TAG, "Button event long press start %d", btn_num);
+    // ESP_LOGI(TAG, "Button event long press start %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
-        ESP_LOGI(TAG, "Button %d long press time %lldms", btn_num, btns[btn_num].press_time/1000);
+        ESP_LOGI(TAG, "Button %d [long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
         if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, L_BUTTON_LONG_PRESS_START, btns[btn_num].press_time);
     }
@@ -65,10 +65,21 @@ static void button_event_long_press_start_cb(void *arg, void *data) {
 
 static void button_event_long_press_start_2_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ESP_LOGI(TAG, "Button event long long press start %d", btn_num);
+    // ESP_LOGI(TAG, "Button event long long press start %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
-        ESP_LOGI(TAG, "Button %d long long press time %lldms", btn_num, btns[btn_num].press_time/1000);
+        ESP_LOGI(TAG, "Button %d [long long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
+        if(btns[btn_num].cb)
+            (btns[btn_num].cb)(btn_num, L_BUTTON_LONG_LONG_PRESS_START, btns[btn_num].press_time);
+    }
+}
+
+static void button_event_long_press_start_3_cb(void *arg, void *data) {
+    int btn_num = (int)data;
+    // ESP_LOGI(TAG, "Button event long long long press start %d", btn_num);
+    if(btn_num < L_BUTTONS_NUM) {
+        btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
+        ESP_LOGI(TAG, "Button %d [long long long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
         if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, L_BUTTON_LONG_LONG_PRESS_START, btns[btn_num].press_time);
     }
@@ -156,6 +167,8 @@ void button_init() {
         err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_long_press_start_cb, (void *)i);
         cfg.event_data.long_press.press_time = 5000;
         err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_long_press_start_2_cb, (void *)i);
+        cfg.event_data.long_press.press_time = 10000;
+        err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_long_press_start_3_cb, (void *)i);
 
         ESP_ERROR_CHECK(err);
     }
