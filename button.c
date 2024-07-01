@@ -93,6 +93,8 @@ static void button_event_single_click_cb(void *arg, void *data) {
 static void button_event_double_click_cb(void *arg, void *data) {
     int btn_num = (int)data;
     ESP_LOGI(TAG, "Button event double click %d", btn_num);
+    if(btns[btn_num].cb)
+            (btns[btn_num].cb)(btn_num, BUTTON_DOUBLE_CLICK, btns[btn_num].press_time);
 }
 
 void power_save_init(void) {
