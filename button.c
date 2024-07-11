@@ -31,7 +31,7 @@ const char *button_event_table[] = {
 
 static void button_event_press_down_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ESP_LOGI(TAG, "Button event press down %d", btn_num);
+    // ESP_LOGI(TAG, "Button event press down %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].button_down = true;
         btns[btn_num].press_start = esp_timer_get_time();
@@ -42,11 +42,11 @@ static void button_event_press_down_cb(void *arg, void *data) {
 
 static void button_event_press_up_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ESP_LOGI(TAG, "Button event press up %d", btn_num);
+    // ESP_LOGI(TAG, "Button event press up %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].button_down = false;
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
-        ESP_LOGI(TAG, "Button %d press time %lldms", btn_num, btns[btn_num].press_time/1000);
+        // ESP_LOGI(TAG, "Button %d press time %lldms", btn_num, btns[btn_num].press_time/1000);
         if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, L_BUTTON_UP, btns[btn_num].press_time);
     }
@@ -57,7 +57,7 @@ static void button_event_long_press_start_cb(void *arg, void *data) {
     // ESP_LOGI(TAG, "Button event long press start %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
-        ESP_LOGI(TAG, "Button %d [long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
+        // ESP_LOGI(TAG, "Button %d [long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
         if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, L_BUTTON_LONG_PRESS_START, btns[btn_num].press_time);
     }
@@ -68,7 +68,7 @@ static void button_event_long_press_start_2_cb(void *arg, void *data) {
     // ESP_LOGI(TAG, "Button event long long press start %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
-        ESP_LOGI(TAG, "Button %d [long long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
+        // ESP_LOGI(TAG, "Button %d [long long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
         if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, L_BUTTON_LONG_LONG_PRESS_START, btns[btn_num].press_time);
     }
@@ -79,7 +79,7 @@ static void button_event_long_press_start_3_cb(void *arg, void *data) {
     // ESP_LOGI(TAG, "Button event long long long press start %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
-        ESP_LOGI(TAG, "Button %d [long long long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
+        // ESP_LOGI(TAG, "Button %d [long long long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
         if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, L_BUTTON_LONG_LONG_PRESS_START, btns[btn_num].press_time);
     }
@@ -87,12 +87,12 @@ static void button_event_long_press_start_3_cb(void *arg, void *data) {
 
 static void button_event_single_click_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ESP_LOGI(TAG, "Button event single click %d", btn_num);
+    // ESP_LOGI(TAG, "Button event single click %d", btn_num);
 }
 
 static void button_event_double_click_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ESP_LOGI(TAG, "Button event double click %d", btn_num);
+    // ESP_LOGI(TAG, "Button event double click %d", btn_num);
     if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, BUTTON_DOUBLE_CLICK, btns[btn_num].press_time);
 }
