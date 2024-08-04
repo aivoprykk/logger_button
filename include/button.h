@@ -16,6 +16,7 @@ typedef enum {
     L_BUTTON_LONG_LONG_PRESS_START,
     L_BUTTON_CLICK,
     L_BUTTON_DOUBLE_CLICK,
+    L_BUTTON_TRIPLE_CLICK,
     L_BUTTON_NONE
 } l_button_ev_t;
 

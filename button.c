@@ -92,9 +92,14 @@ static void button_event_single_click_cb(void *arg, void *data) {
 
 static void button_event_double_click_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    // ESP_LOGI(TAG, "Button event double click %d", btn_num);
     if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, BUTTON_DOUBLE_CLICK, btns[btn_num].press_time);
+}
+
+static void button_event_triple_click_cb(void *arg, void *data) {
+    int btn_num = (int)data;
+    if(btns[btn_num].cb)
+            (btns[btn_num].cb)(btn_num, BUTTON_MULTIPLE_CLICK, btns[btn_num].press_time);
 }
 
 void power_save_init(void) {
@@ -159,6 +164,9 @@ void button_init() {
         cfg1.event = BUTTON_DOUBLE_CLICK;
         cfg1.event_data.multiple_clicks.clicks = 2;
         err |= iot_button_register_event_cb(btns[i].btn, cfg1, button_event_double_click_cb, (void *)i);
+        cfg1.event = BUTTON_MULTIPLE_CLICK;
+        cfg1.event_data.multiple_clicks.clicks = 3;
+        err |= iot_button_register_event_cb(btns[i].btn, cfg1, button_event_triple_click_cb, (void *)i);
 
         cfg.event = BUTTON_PRESS_DOWN;
         err = iot_button_register_event_cb(btns[i].btn, cfg, button_event_press_down_cb, (void *)i);
