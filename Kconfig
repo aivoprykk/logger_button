@@ -1,28 +1,33 @@
 menu "Logger Button Configuration"
-    config BTN_GPIO_INPUT_0
+    config LOGGER_BUTTON_GPIO_0
         int "GPIO 0 input"
         default 3 if HAS_BOARD_LILYGO_T_DISPLAY_S3
         default 39
         help
             Specify the io pad for start/stop/reset/wifi button.
-    config BTN_GPIO_INPUT_1_ACTIVE
+    config LOGGER_BUTTON_GPIO_1_ACTIVE
         bool "Gpio pin 1 is used"
         default y
         help
             Select when there is button active on gpio input 1
-    config BTN_GPIO_INPUT_1
-        depends on BTN_GPIO_INPUT_1_ACTIVE
+    config LOGGER_BUTTON_GPIO_1
+        depends on LOGGER_BUTTON_GPIO_1_ACTIVE
         int "GPIO 1 input"
         default 2 if HAS_BOARD_LILYGO_T_DISPLAY_S3
         default 12
         help
             Specify the io pad for screen button.
-    config BTN_GPIO_INPUT_LONG_PRESS_TIME_MS
+    config LOGGER_BUTTON_SHORT_PRESS_TIME_MS
+        int "Short press duration"
+        default 200
+        help
+            Specify short press duration in milliseconds
+    config LOGGER_BUTTON_LONG_PRESS_TIME_MS
         int "Long press duration"
         default 1500
         help
             Specify long press duration in milliseconds
-    config BTN_GPIO_INPUT_LONG_LONG_PRESS_TIME_MS
+    config LOGGER_BUTTON_LONG_LONG_PRESS_TIME_MS
         int "Long long press duration"
         default 3000
         help

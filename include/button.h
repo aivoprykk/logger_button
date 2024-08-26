@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdint.h>
+#include "sdkconfig.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +31,7 @@ typedef struct l_button_s {
     l_button_cb_t cb;
 } l_button_t;
 
-#if defined(BTN_GPIO_INPUT_1_ACTIVE)
+#if defined(CONFIG_LOGGER_BUTTON_GPIO_1)
 #define L_BUTTONS_NUM             2
 #else
 #define L_BUTTONS_NUM             1
