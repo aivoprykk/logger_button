@@ -7,7 +7,7 @@ menu "Logger Button Configuration"
             Specify the io pad for start/stop/reset/wifi button.
     config LOGGER_BUTTON_GPIO_1_ACTIVE
         bool "Gpio pin 1 is used"
-        default y
+        default n
         help
             Select when there is button active on gpio input 1
     config LOGGER_BUTTON_GPIO_1
