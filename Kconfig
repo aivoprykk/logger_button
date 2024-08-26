@@ -7,7 +7,7 @@ menu "Logger Button Configuration"
             Specify the io pad for start/stop/reset/wifi button.
     config BTN_GPIO_INPUT_1_ACTIVE
         bool "Gpio pin 1 is used"
-        default true
+        default y
         help
             Select when there is button active on gpio input 1
     config BTN_GPIO_INPUT_1
@@ -19,12 +19,12 @@ menu "Logger Button Configuration"
             Specify the io pad for screen button.
     config BTN_GPIO_INPUT_LONG_PRESS_TIME_MS
         int "Long press duration"
-        default 2000
+        default 1500
         help
             Specify long press duration in milliseconds
     config BTN_GPIO_INPUT_LONG_LONG_PRESS_TIME_MS
         int "Long long press duration"
-        default 4000
+        default 3000
         help
             Specify long long press duration in milliseconds
 endmenu
