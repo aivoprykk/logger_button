@@ -158,7 +158,7 @@ void button_init() {
         if(i>0) break;
         btns[i].gpio_num = CONFIG_LOGGER_BUTTON_GPIO_0;
 #endif
-        ILOG(TAG, "[%s] register button %d:%d:%d", __func__, i, btns[i].gpio_num, CONFIG_LOGGER_BUTTON_GPIO_1);
+        ILOG(TAG, "[%s] register button %d:%d", __func__, i, btns[i].gpio_num);
         btn_cfg.gpio_button_config.gpio_num = btns[i].gpio_num;
         btns[i].btn = iot_button_create(&btn_cfg);
         // assert(btns[i].btn);
