@@ -38,6 +38,10 @@ static void button_event_press_down_cb(void *arg, void *data) {
         if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, L_BUTTON_DOWN, btns[btn_num].press_time);
     }
+#if (CONFIG_LOGGER_BUTTON_LOG_LEVEL < 2 || defined(DEBUG))
+    task_memory_info(__func__);
+#endif
+
 }
 
 static void button_event_press_up_cb(void *arg, void *data) {
