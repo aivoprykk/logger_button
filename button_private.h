@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-#include <logger_common.h>
-
 #if (CONFIG_LOGGER_BUTTON_LOG_LEVEL <= 2)
 
 #include "esp_timer.h"

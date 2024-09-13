@@ -9,16 +9,15 @@
 extern "C" {
 #endif
 
+#include <logger_common.h>
+
+#define L_BUTTON_EV_LIST(l) l(L_BUTTON_DOWN, 0x00) l(L_BUTTON_UP, 0x01) l(L_BUTTON_LONG_PRESS_START, 0x02) l(L_BUTTON_LONG_LONG_PRESS_START, 0x03) l(L_BUTTON_CLICK, 0x04) l(L_BUTTON_DOUBLE_CLICK, 0x05) l(L_BUTTON_TRIPLE_CLICK, 0x06) l(L_BUTTON_NONE, 0x07)
+
 typedef enum {
-    L_BUTTON_DOWN = 0,
-    L_BUTTON_UP,
-    L_BUTTON_LONG_PRESS_START,
-    L_BUTTON_LONG_LONG_PRESS_START,
-    L_BUTTON_CLICK,
-    L_BUTTON_DOUBLE_CLICK,
-    L_BUTTON_TRIPLE_CLICK,
-    L_BUTTON_NONE
+    L_BUTTON_EV_LIST(ENUM_V)
 } l_button_ev_t;
+
+extern const char * const l_button_ev_list[];
 
 typedef void (*l_button_cb_t)(int, l_button_ev_t, uint64_t press_time);
 

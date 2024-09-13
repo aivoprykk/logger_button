@@ -1,5 +1,6 @@
 #include "button.h"
 #include "button_private.h"
+#include "button_events.h"
 #include "iot_button.h"
 
 #include "esp_log.h"
@@ -13,20 +14,12 @@ static const char *TAG = "button";
 
 l_button_t btns[L_BUTTONS_NUM] = {0};    // button array
 
-#define BUTTON_EVRNT_TABLE_LEN  (BUTTON_EVENT_MAX + 1)
-const char *button_event_table[] = {
-    "BUTTON_PRESS_DOWN",
-    "BUTTON_PRESS_UP",
-    "BUTTON_PRESS_REPEAT",
-    "BUTTON_PRESS_REPEAT_DONE",
-    "BUTTON_SINGLE_CLICK",
-    "BUTTON_DOUBLE_CLICK",
-    "BUTTON_MULTIPLE_CLICK",
-    "BUTTON_LONG_PRESS_START",
-    "BUTTON_LONG_PRESS_HOLD",
-    "BUTTON_LONG_PRESS_UP",
-    "BUTTON_EVENT_MAX",
-    "BUTTON_NONE_PRESS",
+const char * const button_event_table[] = {
+    BUTTON_EVENT_LIST(STRINGIFY)
+};
+
+const char * const l_button_ev_list[] = {
+    L_BUTTON_EV_LIST(STRINGIFY_V)
 };
 
 static void button_event_press_down_cb(void *arg, void *data) {
