@@ -1,9 +1,9 @@
 #include "button_private.h"
+#if defined(CONFIG_LOGGER_BUTTON_ENABLED)
 #include "button.h"
 #include "button_events.h"
 #include "iot_button.h"
 
-#include "esp_log.h"
 #include "driver/gpio.h"
 #include "esp_timer.h"
 #include "esp_pm.h"
@@ -189,3 +189,5 @@ void button_init() {
 
 void button_deinit() {
 }
+
+#endif

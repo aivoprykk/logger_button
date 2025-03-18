@@ -1,13 +1,13 @@
 #ifndef BTN_BUTTON_H
 #define BTN_BUTTON_H
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "sdkconfig.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <stdint.h>
+#include <stdbool.h>
+#include "sdkconfig.h"
 
 #include <logger_common.h>
 
