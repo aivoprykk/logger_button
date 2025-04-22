@@ -177,7 +177,12 @@ void button_init() {
         // err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_long_press_start_3_cb, (void *)i);
         err |= iot_button_register_cb((struct button_dev_t *)btns[i].btn, BUTTON_LONG_PRESS_START, &cfg, button_event_long_press_start_3_cb, (void *)i);
 
-        ESP_ERROR_CHECK(err);
+        if(err) {
+            ELOG(TAG, "[%s] failed to register button %d", __func__, i);
+        }
+        else {
+            ILOG(TAG, "[%s] button %d registered", __func__, i);
+        }
     }
 }
 
