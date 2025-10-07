@@ -23,7 +23,7 @@ const char * const l_button_ev_list[] = {
 
 static void button_event_press_down_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].button_down = true;
         btns[btn_num].press_start = esp_timer_get_time();
@@ -34,7 +34,7 @@ static void button_event_press_down_cb(void *arg, void *data) {
 
 static void button_event_press_up_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] up %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " up %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].button_down = false;
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
@@ -46,7 +46,7 @@ static void button_event_press_up_cb(void *arg, void *data) {
 
 static void button_event_long_press_start_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
         // ESP_LOGI(TAG, "Button %d [long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
@@ -57,7 +57,7 @@ static void button_event_long_press_start_cb(void *arg, void *data) {
 
 static void button_event_long_press_start_2_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
         // ESP_LOGI(TAG, "Button %d [long long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
@@ -68,7 +68,7 @@ static void button_event_long_press_start_2_cb(void *arg, void *data) {
 
 static void button_event_long_press_start_3_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
         // ESP_LOGI(TAG, "Button %d [long long long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
@@ -79,12 +79,12 @@ static void button_event_long_press_start_3_cb(void *arg, void *data) {
 
 static void button_event_single_click_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
 }
 
 static void button_event_double_click_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
     if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, BUTTON_DOUBLE_CLICK, btns[btn_num].press_time);
 }
@@ -129,7 +129,7 @@ void power_save_init(void) {
 }
 
 void button_init() {
-    ILOG(TAG,"[%s]", __func__);
+    FUNC_ENTRY(TAG);
      power_save_init();
     button_config_t btn_cfg = {
         .long_press_time = CONFIG_LOGGER_BUTTON_LONG_PRESS_TIME_MS,
@@ -146,7 +146,7 @@ void button_init() {
         if(i>0) break;
         btns[i].gpio_num = CONFIG_LOGGER_BUTTON_GPIO_0;
 #endif
-        ILOG(TAG, "[%s] register button %d:%d", __func__, i, btns[i].gpio_num);
+        FUNC_ENTRY_ARGS(TAG, " register button %d:%d", i, btns[i].gpio_num);
         gpio_cfg.gpio_num = btns[i].gpio_num;
         
         esp_err_t err = iot_button_new_gpio_device(&btn_cfg, &gpio_cfg, (struct button_dev_t **)&btns[i].btn);
@@ -181,7 +181,7 @@ void button_init() {
             ELOG(TAG, "[%s] failed to register button %d", __func__, i);
         }
         else {
-            ILOG(TAG, "[%s] button %d registered", __func__, i);
+            FUNC_ENTRY_ARGS(TAG, " button %d registered", i);
         }
     }
 }
