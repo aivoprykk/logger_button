@@ -5,7 +5,6 @@
 #include "iot_button.h"
 #include "button_gpio.h"
 #include "esp_timer.h"
-#include "esp_pm.h"
 
 static const char *TAG = "button";
 
@@ -130,13 +129,14 @@ void power_save_init(void) {
 
 void button_init() {
     FUNC_ENTRY(TAG);
-     power_save_init();
+    // power_save_init();
     button_config_t btn_cfg = {
         .long_press_time = CONFIG_LOGGER_BUTTON_LONG_PRESS_TIME_MS,
         .short_press_time = CONFIG_LOGGER_BUTTON_SHORT_PRESS_TIME_MS,
     };
     button_gpio_config_t gpio_cfg = {
-        .active_level = BUTTON_ACTIVE_LEVEL
+        .active_level = BUTTON_ACTIVE_LEVEL,
+        .disable_pull = false,
     };
     for(int i = 0; i < L_BUTTONS_NUM; i++){
 #if defined(CONFIG_LOGGER_BUTTON_GPIO_1)
