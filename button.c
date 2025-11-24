@@ -1,12 +1,10 @@
 #include "button_private.h"
+#if defined(CONFIG_LOGGER_BUTTON_ENABLED)
 #include "button.h"
 #include "button_events.h"
 #include "iot_button.h"
-
-#include "esp_log.h"
-#include "driver/gpio.h"
+#include "button_gpio.h"
 #include "esp_timer.h"
-#include "esp_pm.h"
 
 static const char *TAG = "button";
 
@@ -24,22 +22,18 @@ const char * const l_button_ev_list[] = {
 
 static void button_event_press_down_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].button_down = true;
         btns[btn_num].press_start = esp_timer_get_time();
         if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, L_BUTTON_DOWN, btns[btn_num].press_time);
     }
-#if (CONFIG_LOGGER_BUTTON_LOG_LEVEL < 2 || defined(DEBUG))
-    task_memory_info(__func__);
-#endif
-
 }
 
 static void button_event_press_up_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] up %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " up %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].button_down = false;
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
@@ -51,7 +45,7 @@ static void button_event_press_up_cb(void *arg, void *data) {
 
 static void button_event_long_press_start_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
         // ESP_LOGI(TAG, "Button %d [long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
@@ -62,7 +56,7 @@ static void button_event_long_press_start_cb(void *arg, void *data) {
 
 static void button_event_long_press_start_2_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
         // ESP_LOGI(TAG, "Button %d [long long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
@@ -73,7 +67,7 @@ static void button_event_long_press_start_2_cb(void *arg, void *data) {
 
 static void button_event_long_press_start_3_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
     if(btn_num < L_BUTTONS_NUM) {
         btns[btn_num].press_time = esp_timer_get_time() - btns[btn_num].press_start;
         // ESP_LOGI(TAG, "Button %d [long long long] press start on time %lldms", btn_num, btns[btn_num].press_time/1000);
@@ -84,12 +78,12 @@ static void button_event_long_press_start_3_cb(void *arg, void *data) {
 
 static void button_event_single_click_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
 }
 
 static void button_event_double_click_cb(void *arg, void *data) {
     int btn_num = (int)data;
-    ILOG(TAG, "[%s] %d", __func__, btn_num);
+    FUNC_ENTRY_ARGS(TAG, " %d", btn_num);
     if(btns[btn_num].cb)
             (btns[btn_num].cb)(btn_num, BUTTON_DOUBLE_CLICK, btns[btn_num].press_time);
 }
@@ -134,18 +128,15 @@ void power_save_init(void) {
 }
 
 void button_init() {
-    ILOG(TAG,"[%s]", __func__);
-     power_save_init();
+    FUNC_ENTRY(TAG);
+    // power_save_init();
     button_config_t btn_cfg = {
-        .type = BUTTON_TYPE_GPIO,
         .long_press_time = CONFIG_LOGGER_BUTTON_LONG_PRESS_TIME_MS,
         .short_press_time = CONFIG_LOGGER_BUTTON_SHORT_PRESS_TIME_MS,
-        .gpio_button_config = {
+    };
+    button_gpio_config_t gpio_cfg = {
         .active_level = BUTTON_ACTIVE_LEVEL,
-        // #if CONFIG_GPIO_BUTTON_SUPPORT_POWER_SAVE
-        //             .enable_power_save = true,
-        // #endif
-        },
+        .disable_pull = false,
     };
     for(int i = 0; i < L_BUTTONS_NUM; i++){
 #if defined(CONFIG_LOGGER_BUTTON_GPIO_1)
@@ -155,37 +146,47 @@ void button_init() {
         if(i>0) break;
         btns[i].gpio_num = CONFIG_LOGGER_BUTTON_GPIO_0;
 #endif
-        ILOG(TAG, "[%s] register button %d:%d", __func__, i, btns[i].gpio_num);
-        btn_cfg.gpio_button_config.gpio_num = btns[i].gpio_num;
-        btns[i].btn = iot_button_create(&btn_cfg);
+        FUNC_ENTRY_ARGS(TAG, " register button %d:%d", i, btns[i].gpio_num);
+        gpio_cfg.gpio_num = btns[i].gpio_num;
+        
+        esp_err_t err = iot_button_new_gpio_device(&btn_cfg, &gpio_cfg, (struct button_dev_t **)&btns[i].btn);
+
+        // btns[i].btn = iot_button_create(&btn_cfg);
         // assert(btns[i].btn);
-        button_event_config_t cfg = {0}, cfg1 = {0};
-        esp_err_t err = ESP_OK;
-        cfg1.event = BUTTON_SINGLE_CLICK;
-        cfg1.event_data.multiple_clicks.clicks = 1;
-        err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_single_click_cb, (void *)i);
-        cfg1.event = BUTTON_DOUBLE_CLICK;
-        cfg1.event_data.multiple_clicks.clicks = 2;
-        err |= iot_button_register_event_cb(btns[i].btn, cfg1, button_event_double_click_cb, (void *)i);
-        cfg1.event = BUTTON_MULTIPLE_CLICK;
-        cfg1.event_data.multiple_clicks.clicks = 3;
-        err |= iot_button_register_event_cb(btns[i].btn, cfg1, button_event_3_click_cb, (void *)i);
+        button_event_args_t cfg = {0}, cfg1 = {0};
+        cfg1.multiple_clicks.clicks = 1;
+        err |= iot_button_register_cb((struct button_dev_t *)btns[i].btn, BUTTON_SINGLE_CLICK, &cfg1, button_event_single_click_cb, (void *)i);
+        // err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_single_click_cb, (void *)i);
+        cfg1.multiple_clicks.clicks = 2;
+        // err |= iot_button_register_event_cb(btns[i].btn, cfg1, button_event_double_click_cb, (void *)i);
+        err |= iot_button_register_cb((struct button_dev_t *)btns[i].btn, BUTTON_DOUBLE_CLICK, &cfg1, button_event_double_click_cb, (void *)i);
+        cfg1.multiple_clicks.clicks = 3;
+        // err |= iot_button_register_event_cb(btns[i].btn, cfg1, button_event_3_click_cb, (void *)i);
+        err |= iot_button_register_cb((struct button_dev_t *)btns[i].btn, BUTTON_MULTIPLE_CLICK, &cfg1, button_event_3_click_cb, (void *)i);
+        // err = iot_button_register_event_cb(btns[i].btn, cfg, button_event_press_down_cb, (void *)i);
+        err |= iot_button_register_cb((struct button_dev_t *)btns[i].btn, BUTTON_PRESS_DOWN, 0, button_event_press_down_cb, (void *)i);
+        // err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_press_up_cb, (void *)i);
+        err |= iot_button_register_cb((struct button_dev_t *)btns[i].btn, BUTTON_PRESS_UP, 0, button_event_press_up_cb, (void *)i);
+        cfg.long_press.press_time = CONFIG_LOGGER_BUTTON_LONG_PRESS_TIME_MS;
+        // err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_long_press_start_cb, (void *)i);
+        err |= iot_button_register_cb((struct button_dev_t *)btns[i].btn, BUTTON_LONG_PRESS_START, &cfg, button_event_long_press_start_cb, (void *)i);
+        cfg.long_press.press_time = CONFIG_LOGGER_BUTTON_LONG_LONG_PRESS_TIME_MS;
+        // err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_long_press_start_2_cb, (void *)i);
+        err |= iot_button_register_cb((struct button_dev_t *)btns[i].btn, BUTTON_LONG_PRESS_START, &cfg, button_event_long_press_start_2_cb, (void *)i);
+        cfg.long_press.press_time = 10000;
+        // err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_long_press_start_3_cb, (void *)i);
+        err |= iot_button_register_cb((struct button_dev_t *)btns[i].btn, BUTTON_LONG_PRESS_START, &cfg, button_event_long_press_start_3_cb, (void *)i);
 
-        cfg.event = BUTTON_PRESS_DOWN;
-        err = iot_button_register_event_cb(btns[i].btn, cfg, button_event_press_down_cb, (void *)i);
-        cfg.event = BUTTON_PRESS_UP;
-        err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_press_up_cb, (void *)i);
-        cfg.event = BUTTON_LONG_PRESS_START;
-        cfg.event_data.long_press.press_time = CONFIG_LOGGER_BUTTON_LONG_PRESS_TIME_MS;
-        err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_long_press_start_cb, (void *)i);
-        cfg.event_data.long_press.press_time = CONFIG_LOGGER_BUTTON_LONG_LONG_PRESS_TIME_MS;
-        err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_long_press_start_2_cb, (void *)i);
-        cfg.event_data.long_press.press_time = 10000;
-        err |= iot_button_register_event_cb(btns[i].btn, cfg, button_event_long_press_start_3_cb, (void *)i);
-
-        ESP_ERROR_CHECK(err);
+        if(err) {
+            ELOG(TAG, "[%s] failed to register button %d", __func__, i);
+        }
+        else {
+            FUNC_ENTRY_ARGS(TAG, " button %d registered", i);
+        }
     }
 }
 
 void button_deinit() {
 }
+
+#endif

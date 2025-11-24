@@ -1,12 +1,11 @@
 #ifndef EBA12D5B_22F9_4295_B6AF_D0C073FDB789
 #define EBA12D5B_22F9_4295_B6AF_D0C073FDB789
 
-#include "esp_event.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include "esp_event.h"
 #include "logger_common.h"
 
 // Declare an event base

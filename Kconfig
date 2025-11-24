@@ -1,61 +1,72 @@
 menu "Logger Button Configuration"
-    config LOGGER_BUTTON_GPIO_0
-        int "GPIO 0 input"
-        default 3 if HAS_BOARD_LILYGO_T_DISPLAY_S3
-        default 39
+    config LOGGER_BUTTON_ENABLED
+        bool "Enable Logger Button"
+        default y
         help
-            Specify the io pad for start/stop/reset/wifi button.
-    config LOGGER_BUTTON_GPIO_1_ACTIVE
-        bool "Gpio pin 1 is used"
-        default n
-        help
-            Select when there is button active on gpio input 1
-    config LOGGER_BUTTON_GPIO_1
-        depends on LOGGER_BUTTON_GPIO_1_ACTIVE
-        int "GPIO 1 input"
-        default 2 if HAS_BOARD_LILYGO_T_DISPLAY_S3
-        default 12
-        help
-            Specify the io pad for screen button.
-    config LOGGER_BUTTON_SHORT_PRESS_TIME_MS
-        int "Short press duration"
-        default 200
-        help
-            Specify short press duration in milliseconds
-    config LOGGER_BUTTON_LONG_PRESS_TIME_MS
-        int "Long press duration"
-        default 1500
-        help
-            Specify long press duration in milliseconds
-    config LOGGER_BUTTON_LONG_LONG_PRESS_TIME_MS
-        int "Long long press duration"
-        default 3000
-        help
-            Specify long long press duration in milliseconds
-    choice
-        bool "Default log verbosity"
-        default LOGGER_BUTTON_LOG_LEVEL_ERROR
-        help
-            Specify how important log should be added.
-        config LOGGER_BUTTON_LOG_LEVEL_TRACE
-            bool "TRACE: A lot of logs to give detailed information"
-        config LOGGER_BUTTON_LOG_LEVEL_INFO
-            bool "INFO: Log important events"
-        config LOGGER_BUTTON_LOG_LEVEL_WARN
-            bool "WARN: Log if something unwanted happened but didn't cause a problem"
-        config LOGGER_BUTTON_LOG_LEVEL_ERROR
-            bool "ERROR: Only critical issues, when the system may fail"
-        config LOGGER_BUTTON_LOG_LEVEL_USER
-            bool "USER: Only logs added by the user"
-        config LOGGER_BUTTON_LOG_LEVEL_NONE
-            bool "NONE: Do not log anything"
-    endchoice
-    config LOGGER_BUTTON_LOG_LEVEL
-        int
-        default 0 if LOGGER_BUTTON_LOG_LEVEL_TRACE
-        default 1 if LOGGER_BUTTON_LOG_LEVEL_INFO
-        default 2 if LOGGER_BUTTON_LOG_LEVEL_WARN
-        default 3 if LOGGER_BUTTON_LOG_LEVEL_ERROR
-        default 4 if LOGGER_BUTTON_LOG_LEVEL_USER
-        default 5 if LOGGER_BUTTON_LOG_LEVEL_NONE
+            This option enables Logger Button.
+    if LOGGER_BUTTON_ENABLED
+        config LOGGER_BUTTON_GPIO_0
+            int "Button primary GPIO pin"
+            default 3 if HAS_BOARD_LILYGO_T_DISPLAY_S3
+            default 39
+            help
+                Specify the io pad for start/stop/reset/wifi button.
+        config LOGGER_BUTTON_GPIO_1_ACTIVE
+            bool "Check when second Button is in use"
+            default n
+            help
+                Select when there is button active on gpio input 1
+        if(LOGGER_BUTTON_GPIO_1_ACTIVE)
+            config LOGGER_BUTTON_GPIO_1
+                int "Button second GPIO pin"
+                default 2 if HAS_BOARD_LILYGO_T_DISPLAY_S3
+                default 12
+                help
+                    Specify the io pad for screen button.
+        endif
+        config LOGGER_BUTTON_SHORT_PRESS_TIME_MS
+            int "Button Short press duration"
+            default 200
+            help
+                Specify short press duration in milliseconds
+        config LOGGER_BUTTON_LONG_PRESS_TIME_MS
+            int "Button Long press duration"
+            default 1500
+            help
+                Specify long press duration in milliseconds
+        config LOGGER_BUTTON_LONG_LONG_PRESS_TIME_MS
+            int "Button Long long press duration"
+            default 3000
+            help
+                Specify long long press duration in milliseconds
+        choice
+            bool "Button Log verbosity"
+            default LOGGER_BUTTON_LOG_LEVEL_ERROR
+            help
+                Specify how important log should be added.
+            config LOGGER_BUTTON_LOG_LEVEL_TRACE
+                bool "TRACE: Log more to give detailed information"
+            config LOGGER_BUTTON_LOG_LEVEL_DEBUG
+                bool "DEBUG: Log general debug info"
+            config LOGGER_BUTTON_LOG_LEVEL_INFO
+                bool "INFO: Log important events"
+            config LOGGER_BUTTON_LOG_LEVEL_WARN
+                bool "WARN: Log if something unwanted happened but didn't cause a problem"
+            config LOGGER_BUTTON_LOG_LEVEL_ERROR
+                bool "ERROR: Only critical issues, when the system may fail"
+            config LOGGER_BUTTON_LOG_LEVEL_USER
+                bool "USER: Only logs added by the user"
+            config LOGGER_BUTTON_LOG_LEVEL_NONE
+                bool "NONE: Do not log anything"
+        endchoice
+        config LOGGER_BUTTON_LOG_LEVEL
+            int
+            default 0 if LOGGER_BUTTON_LOG_LEVEL_TRACE
+            default 1 if LOGGER_BUTTON_LOG_LEVEL_DEBUG
+            default 2 if LOGGER_BUTTON_LOG_LEVEL_INFO
+            default 3 if LOGGER_BUTTON_LOG_LEVEL_WARN
+            default 4 if LOGGER_BUTTON_LOG_LEVEL_ERROR
+            default 5 if LOGGER_BUTTON_LOG_LEVEL_USER
+            default 6 if LOGGER_BUTTON_LOG_LEVEL_NONE
+    endif
 endmenu
